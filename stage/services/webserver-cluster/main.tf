@@ -2,11 +2,6 @@ provider "aws" {
   region = "us-east-2"
 }
 
-variable "server_port" {
-  description = "The port the server will use for HTTP requests"
-  default     = 8080
-}
-
 resource "aws_launch_configuration" "example" {
   image_id        = "ami-153e6470"
   instance_type   = "t2.micro"
@@ -52,7 +47,7 @@ resource "aws_autoscaling_group" "example" {
 
   min_size = 2
   max_size = 10
-  desired_capacity = 3
+  desired_capacity = 2
 
   tag {
     key                 = "Name"
@@ -100,6 +95,10 @@ resource "aws_security_group" "elb" {
   }
 }
 
-output "elb_dns_name" {
-  value = "${aws_elb.example.dns_name}"
+terraform {
+  backend "s3" {
+    bucket = "terraform-state-example"
+    key = "stage/services/webserver-cluster/terraform.tfstate"
+    region = "us-east-2"
+  }
 }

@@ -14,10 +14,6 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 }
 
-output "s3_bucket_arn" {
-  value = "${aws_s3_bucket.terraform_state.arn}"
-}
-
 terraform {
   backend "s3" {
     bucket = "terraform-state-example"
