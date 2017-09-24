@@ -13,3 +13,11 @@ module "webserver_cluster" {
   min_size = 2
   max_size = 2
 }
+
+terraform {
+  backend "s3" {
+    bucket = "terraform-state-example"
+    key = "stage/services/webserver-cluster/terraform.tfstate"
+    region = "us-east-2"
+  }
+}

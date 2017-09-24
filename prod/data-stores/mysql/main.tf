@@ -14,7 +14,7 @@ module "database" {
 terraform {
   backend "s3" {
     bucket = "terraform-state-example"
-    key = "stage/data-stores/mysql/terraform.tfstate"
+    key = "prod/data-stores/mysql/terraform.tfstate"
     region = "us-east-2"
   }
 }
