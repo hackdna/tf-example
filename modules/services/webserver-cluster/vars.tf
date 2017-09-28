@@ -1,3 +1,7 @@
+variable "aws_region" {
+  description = "The AWS region to use"
+}
+
 variable "server_port" {
   description = "The port the server will use for HTTP requests"
   default     = 8080

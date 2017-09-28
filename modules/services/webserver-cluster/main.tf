@@ -3,8 +3,8 @@ data "terraform_remote_state" "db" {
 
   config {
     bucket = "${var.db_remote_state_bucket}"
-    key = "${var.db_remote_state_key}"
-    region = "us-east-2"
+    key    = "${var.db_remote_state_key}"
+    region = "${var.aws_region}"
   }
 }
 
@@ -20,12 +20,12 @@ data "template_file" "user_data" {
 }
 
 resource "aws_launch_configuration" "example" {
-  image_id        = "ami-153e6470"
-  instance_type   = "${var.instance_type}"
-  security_groups = [
-    "${aws_security_group.instance.id}"
-  ]
-  user_data       = "${data.template_file.user_data.rendered}"
+  image_id      = "ami-153e6470"
+  instance_type = "${var.instance_type}"
+
+  security_groups = ["${aws_security_group.instance.id}"]
+
+  user_data = "${data.template_file.user_data.rendered}"
 
   lifecycle {
     create_before_destroy = true
@@ -46,7 +46,7 @@ resource "aws_security_group_rule" "allow_webserver_inbound" {
   from_port         = "${var.server_port}"
   to_port           = "${var.server_port}"
   protocol          = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 data "aws_availability_zones" "all" {}
@@ -55,13 +55,13 @@ resource "aws_autoscaling_group" "example" {
   name = "${var.cluster_name}-${aws_launch_configuration.example.name}"
 
   launch_configuration = "${aws_launch_configuration.example.id}"
-  availability_zones = ["${data.aws_availability_zones.all.names}"]
+  availability_zones   = ["${data.aws_availability_zones.all.names}"]
 
-  load_balancers = ["${aws_elb.example.name}"]
+  load_balancers    = ["${aws_elb.example.name}"]
   health_check_type = "ELB"
 
-  min_size = "${var.min_size}"
-  max_size = "${var.max_size}"
+  min_size         = "${var.min_size}"
+  max_size         = "${var.max_size}"
   min_elb_capacity = "${var.min_size}"
 
   lifecycle {
@@ -100,9 +100,9 @@ resource "aws_autoscaling_schedule" "scale_in_at_night" {
 }
 
 resource "aws_elb" "example" {
-  name = "${var.cluster_name}-elb"
+  name               = "${var.cluster_name}-elb"
   availability_zones = ["${data.aws_availability_zones.all.names}"]
-  security_groups = ["${aws_security_group.elb.id}"]
+  security_groups    = ["${aws_security_group.elb.id}"]
 
   listener {
     instance_port     = "${var.server_port}"
@@ -136,9 +136,9 @@ resource "aws_security_group_rule" "allow_http_inbound" {
   type              = "ingress"
   security_group_id = "${aws_security_group.elb.id}"
 
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
+  from_port   = 80
+  to_port     = 80
+  protocol    = "tcp"
   cidr_blocks = ["0.0.0.0/0"]
 }
 
@@ -148,7 +148,7 @@ resource "aws_security_group_rule" "allow_all_outbound" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 resource "aws_cloudwatch_metric_alarm" "high_cpu_utilization" {
@@ -171,7 +171,7 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu_utilization" {
 resource "aws_cloudwatch_metric_alarm" "low_cpu_credit_balance" {
   count = "${format("%.1s", var.instance_type) == "t" ? 1 : 0}"
 
-  alarm_name = "${var.cluster_name}-low-cpu-credit-balance"
+  alarm_name  = "${var.cluster_name}-low-cpu-credit-balance"
   namespace   = "AWS/EC2"
   metric_name = "CPUCreditBalance"
 

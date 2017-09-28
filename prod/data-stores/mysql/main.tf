@@ -1,20 +1,21 @@
 provider "aws" {
-  region = "us-east-2"
+  region = "${var.aws_region}"
 }
 
 module "database" {
   source = "../../../modules/data-stores/mysql"
 
+  aws_region       = "${var.aws_region}"
   db_instance_type = "db.t2.micro"
-  db_name = "example_database"
-  db_storage_size = 10
-  db_password = "${var.db_password}"
+  db_name          = "example_database"
+  db_storage_size  = 10
+  db_password      = "${var.db_password}"
 }
 
 terraform {
   backend "s3" {
     bucket = "terraform-state-example"
-    key = "prod/data-stores/mysql/terraform.tfstate"
+    key    = "prod/data-stores/mysql/terraform.tfstate"
     region = "us-east-2"
   }
 }
